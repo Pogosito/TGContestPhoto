@@ -16,33 +16,22 @@ final class ZoomPresentAnimationController: UIPercentDrivenInteractiveTransition
 	// MARK: - Private properties
 
 	private let myDuration: TimeInterval = 1.0
-	private var containerView: UIView?
 
-	override func update(_ percentComplete: CGFloat) {}
+	private var toView: UIView?
 
-	func scalePreview(by scaleFactor: CGFloat, contentOffset: CGPoint) {
-//		print(containerView?.frame.origin)
-//		print(contentOffset)
-//		containerView?.frame.origin = CGPoint(x: -contentOffset.x, y: -contentOffset.y)
+	func scaleToView(by scaleFactor: CGFloat, origin: CGPoint) {
+		toView?.frame.origin = origin
 
-//		containerView?.frame.origin ?? .zero - contentOffset
-//		print(containerView?.frame.origin)
-//		print("----------------------------")
-//		let containerFrame = containerView?.frame ?? .zero
-//
-//		let t = CGAffineTransformTranslate(CGAffineTransform(scaleX: scaleFactor, y: scaleFactor),
-//										   containerFrame.width / 2,
-//										   containerFrame.height / 2)
-//
-
-//		containerView?.setAnchorPoint(.zero)
-//		print(containerView?.anchorPoint)
-		containerView?.transform = CGAffineTransform(
+		toView?.transform = CGAffineTransform(
 			scaleX: scaleFactor,
 			y: scaleFactor
 		)
+	}
 
-//		print(containerView?.frame)
+	override func update(_ percentComplete: CGFloat) {
+		if percentComplete > 0.3 {
+			
+		}
 	}
 }
 
@@ -55,28 +44,10 @@ extension ZoomPresentAnimationController: UIViewControllerAnimatedTransitioning 
 	) -> TimeInterval { myDuration }
 
 	func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-		guard let toView = transitionContext.view(forKey: .to),
-			  let toViewController = transitionContext.viewController(forKey: .to) else { return }
+		guard let toView = transitionContext.view(forKey: .to) else { return }
 
 		toView.frame = initialFrame
-
-		containerView = transitionContext.containerView
-		containerView?.addSubview(toView)
-		center = containerView!.center
-
-		transitionContext.completeTransition(true)
-
-//		UIView.animate(
-//			withDuration: myDuration,
-//			animations: {
-//				toView.frame = transitionContext.finalFrame(for: toViewController)
-//			},
-//			completion: { _ in
-//				print("COMPETE")
-//				self.containerView = nil
-//				transitionContext.completeTransition(true)
-//			}
-//		)
+		transitionContext.containerView.addSubview(toView)
+		self.toView = toView
 	}
 }
-

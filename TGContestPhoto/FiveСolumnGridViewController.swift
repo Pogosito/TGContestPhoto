@@ -9,25 +9,19 @@ import UIKit
 
 final class FiveСolumnGridViewController: UIViewController {
 
-	lazy var someView = UIView(
-		frame: CGRect(origin: .init(x: 75, y: 95),
-					  size: .init(width: itemWidth, height: itemWidth))
-	)
-
-	private var previousContentOffset: CGPoint = .zero
-	private var previousSomeViewSize: CGSize = .zero
-
 	// MARK: - Private properties
 
-	private let cellId = "collectionCellId"
+	private let cellId: String = "collectionCellId"
 	private let zoomPresentAnimation = ZoomPresentAnimationController()
 	private let zoomInteractiveTransitioning = UIPercentDrivenInteractiveTransition()
 
 	private var currentScrollViewYContentOffset: CGFloat = 0
 	private var lastZoomScale: CGFloat = .zero
+	private var firstCellAfterZoom: UICollectionViewCell?
 
-	private lazy var viewFrame = view.frame
-	private lazy var itemWidth = (viewFrame.width - (0.5 * 6)) / 5
+	private lazy var viewFrame: CGRect = view.frame
+	private lazy var itemWidth: CGFloat = (viewFrame.width - (0.5 * 6)) / 5
+	private lazy var finalZoomScale: Double = 5.0 / 3.0
 
 	// MARK: UI
 
@@ -37,7 +31,7 @@ final class FiveСolumnGridViewController: UIViewController {
 		scrollView.translatesAutoresizingMaskIntoConstraints = false
 		scrollView.isScrollEnabled = false
 		scrollView.bouncesZoom = false
-		scrollView.maximumZoomScale = 5.0 / 3.0
+		scrollView.maximumZoomScale = finalZoomScale
 		scrollView.minimumZoomScale = 1.0
 		scrollView.contentInsetAdjustmentBehavior = .never
 		scrollView.backgroundColor = .green
@@ -81,8 +75,6 @@ final class FiveСolumnGridViewController: UIViewController {
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		someView.backgroundColor = .blue
-		UIApplication.shared.delegate?.window!?.addSubview(someView)
 	}
 }
 
@@ -99,8 +91,7 @@ extension FiveСolumnGridViewController: UIViewControllerTransitioningDelegate {
 	func interactionControllerForPresentation(
 		using animator: UIViewControllerAnimatedTransitioning
 	) -> UIViewControllerInteractiveTransitioning? {
-//		zoomInteractiveTransitioning
-		zoomPresentAnimation
+		zoomInteractiveTransitioning
 	}
 }
 
@@ -122,12 +113,10 @@ extension FiveСolumnGridViewController: UIScrollViewDelegate {
 	func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
 		guard let pinchLocation = scrollView.pinchGestureRecognizer?.location(in: self.view) else { return }
 
-		let finalZoomScale: Double = 5.0 / 3.0
-
 		let offset = calculateOffset(
 			zoomScale: finalZoomScale,
 			contentSize: viewFrame.size * finalZoomScale,
-			by: pinchLocation
+			by: change(pinchLocation: pinchLocation)
 		)
 
 		let previewOrigin = CGPoint(
@@ -135,59 +124,60 @@ extension FiveСolumnGridViewController: UIScrollViewDelegate {
 			y: offset.y / finalZoomScale + currentScrollViewYContentOffset
 		)
 
-		guard let firstCellOriginAfterZoom = cellOrigin(by: previewOrigin),
-			  let lastCellOriginAfterZoom = cellOrigin(
-			by: CGPoint(x: previewOrigin.x + (itemWidth * 3), y: previewOrigin.y + itemWidth * 7)
-		) else { return }
+		firstCellAfterZoom = cell(by: previewOrigin)
+
+		guard let firstCellOriginAfterZoom = firstCellAfterZoom?.frame.origin,
+			  let lastCellOriginAfterZoom = cell(
+				by: CGPoint(
+					x: previewOrigin.x + (itemWidth * 3),
+					y: previewOrigin.y + itemWidth * 7
+				)
+			  )?.frame.origin else {
+			return
+		}
 
 		let lowerRightCornerOfLastCell = lastCellOriginAfterZoom + itemWidth
 		let sizeOfPreview = lowerRightCornerOfLastCell - firstCellOriginAfterZoom
 
 		zoomPresentAnimation.initialFrame = CGRect(
-			origin: self.view.convert(firstCellOriginAfterZoom, from: collectionView),
+			origin: firstCellOriginAfterZoom,
 			size: CGSize(width: sizeOfPreview.x, height: sizeOfPreview.y)
 		)
 
-//		present(threeColumnGridViewController, animated: true)
+		present(threeColumnGridViewController, animated: true)
 	}
 
 	func scrollViewDidZoom(_ scrollView: UIScrollView) {
 		guard let pinchGestureRecognizer = scrollView.pinchGestureRecognizer else { return }
 		let pinchLocation = pinchGestureRecognizer.location(in: view)
-
 		let zoomScale = scrollView.zoomScale
+
+		let newPinchLocation = change(pinchLocation: pinchLocation)
 
 		scrollView.contentOffset = calculateOffset(
 			zoomScale: zoomScale,
 			contentSize: scrollView.contentSize,
-			by: pinchLocation
+			by: newPinchLocation
 		)
 
-		
-//		someView.transform = CGAffineTransform(scaleX: zoomScale, y: zoomScale)
-		someView.frame.origin = self.view.convert(someView.frame.origin - (scrollView.contentOffset - previousContentOffset), to: collectionView)
+		zoomPresentAnimation.scaleToView(
+			by: zoomScale,
+			origin: view.convert(
+				firstCellAfterZoom?.frame.origin ?? .zero,
+				from: collectionView
+			)
+		)
 
-		previousContentOffset = scrollView.contentOffset
-
-
-//		print(scrollView.contentOffset)
-//		print(someView.frame.origin)
-
-//		zoomPresentAnimation.scalePreview(
-//			by: zoomScale,
-//			contentOffset: self.view.convert(scrollView.contentOffset, from: collectionView)
-//		)
-
-//		zoomPresentAnimation.update(zoomScale)
+		zoomInteractiveTransitioning.update((zoomScale - 1) / (finalZoomScale - 1))
 	}
 
 	func scrollViewDidEndZooming(_ scrollView: UIScrollView,
 								 with view: UIView?,
 								 atScale scale: CGFloat) {
 		if scale - 1 < 0.5 {
-			zoomPresentAnimation.cancel()
+			zoomInteractiveTransitioning.cancel()
 		} else {
-			zoomPresentAnimation.finish()
+			zoomInteractiveTransitioning.finish()
 		}
 	}
 }
@@ -220,9 +210,7 @@ extension FiveСolumnGridViewController: UICollectionViewDataSource {
 
 private extension FiveСolumnGridViewController {
 
-	func calculateOffset(zoomScale: CGFloat,
-						 contentSize: CGSize,
-						 by pinchLocation: CGPoint) -> CGPoint {
+	func change(pinchLocation: CGPoint) -> CGPoint {
 		var newLocation = CGPoint(x: 0, y: pinchLocation.y)
 
 		switch section(for: pinchLocation) {
@@ -232,8 +220,15 @@ private extension FiveСolumnGridViewController {
 		case .none: return .zero
 		}
 
-		let offsetX = contentSize.width - (newLocation.x + (viewFrame.width - newLocation.x) * zoomScale)
-		let offsetY = contentSize.height - (newLocation.y + (viewFrame.height - newLocation.y) * zoomScale)
+		return newLocation
+	}
+
+	func calculateOffset(zoomScale: CGFloat,
+						 contentSize: CGSize,
+						 by pinchLocation: CGPoint) -> CGPoint {
+
+		let offsetX = contentSize.width - (pinchLocation.x + (viewFrame.width - pinchLocation.x) * zoomScale)
+		let offsetY = contentSize.height - (pinchLocation.y + (viewFrame.height - pinchLocation.y) * zoomScale)
 
 		return CGPoint(x: offsetX, y: offsetY)
 	}
@@ -250,12 +245,10 @@ private extension FiveСolumnGridViewController {
 		return .none
 	}
 
-	func cellOrigin(by point: CGPoint) -> CGPoint? {
+	func cell(by point: CGPoint) -> UICollectionViewCell? {
 		let visibleCells = collectionView.visibleCells
 
-		for cell in visibleCells {
-			if CGRectContainsPoint(cell.frame, point) { return cell.frame.origin }
-		}
+		for cell in visibleCells { if CGRectContainsPoint(cell.frame, point) { return cell } }
 
 		return nil
 	}
@@ -286,4 +279,3 @@ private extension FiveСolumnGridViewController {
 		scrollView.addSubview(collectionView)
 	}
 }
-
