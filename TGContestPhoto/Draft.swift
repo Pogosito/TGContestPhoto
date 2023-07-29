@@ -31,7 +31,7 @@ final class ViewController2: UIViewController {
 		scrollView.translatesAutoresizingMaskIntoConstraints = false
 //		scrollView.isScrollEnabled = false
 //		scrollView.bouncesZoom = false
-		scrollView.maximumZoomScale = 5.0 / 3.0
+		scrollView.maximumZoomScale = 100
 		scrollView.minimumZoomScale = 1.0
 		scrollView.contentInsetAdjustmentBehavior = .never
 		scrollView.backgroundColor = .green
@@ -69,9 +69,10 @@ final class ViewController2: UIViewController {
 
 	@objc func someFunction() {
 		let cgFloatScaleValue = CGFloat(slider.value)
-		someView.transform = CGAffineTransform(scaleX: cgFloatScaleValue, y: cgFloatScaleValue)
+//		someView.setAnchorPoint(CGPoint(x: , y: <#T##CGFloat#>))
+		someView.transform = CGAffineTransformMakeScale(cgFloatScaleValue * 2, cgFloatScaleValue * 2)
 
-//		CGAffineTransformMakeScale(cgFloatScaleValue, cgFloatScaleValue)
+//
 	}
 
 	func addScrollView() {
@@ -100,3 +101,99 @@ extension ViewController2: UIScrollViewDelegate {
 
 	}
 }
+
+//private lazy var scrollView: UIScrollView = {
+//	let scrollView = UIScrollView()
+//	scrollView.delegate = self
+//	scrollView.translatesAutoresizingMaskIntoConstraints = false
+//	scrollView.isScrollEnabled = false
+//	scrollView.bouncesZoom = false
+//	scrollView.maximumZoomScale = finalZoomScale
+//	scrollView.minimumZoomScale = 1.0
+//	scrollView.contentInsetAdjustmentBehavior = .never
+//	scrollView.backgroundColor = .green
+//	return scrollView
+//}()
+
+//// MARK: - UIScrollViewDelegate
+//
+//extension FiveСolumnGridViewController: UIScrollViewDelegate {
+//
+//	func viewForZooming(in scrollView: UIScrollView) -> UIView? { collectionView }
+//
+//	func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+//		guard let pinchLocation = scrollView.pinchGestureRecognizer?.location(in: self.view) else { return }
+//
+//		let offset = calculateOffset(
+//			zoomScale: finalZoomScale,
+//			contentSize: viewFrame.size * finalZoomScale,
+//			by: change(pinchLocation: pinchLocation)
+//		)
+//
+//		let previewOrigin = CGPoint(
+//			x: offset.x / finalZoomScale + 0.6,
+//			y: offset.y / finalZoomScale + currentScrollViewYContentOffset
+//		)
+//
+//		firstCellAfterZoom = cell(by: previewOrigin)
+//
+//		guard let firstCellOriginAfterZoom = firstCellAfterZoom?.frame.origin,
+//			  let lastCellOriginAfterZoom = cell(
+//				by: CGPoint(
+//					x: previewOrigin.x + (itemWidth * 3),
+//					y: previewOrigin.y + itemWidth * 7
+//				)
+//			  )?.frame.origin else {
+//			return
+//		}
+//
+//		let lowerRightCornerOfLastCell = lastCellOriginAfterZoom + itemWidth
+//		let sizeOfPreview = lowerRightCornerOfLastCell - firstCellOriginAfterZoom
+//
+//		finalZoomRect = CGRect(
+//			origin: firstCellOriginAfterZoom,
+//			size: CGSize(width: sizeOfPreview.x, height: sizeOfPreview.y)
+//		)
+//
+//		print(finalZoomRect)
+//
+//		zoomPresentAnimation.initialFrame = finalZoomRect
+//
+//		present(threeColumnGridViewController, animated: true)
+//	}
+//
+//	func scrollViewDidZoom(_ scrollView: UIScrollView) {
+//		guard let pinchGestureRecognizer = scrollView.pinchGestureRecognizer else { return }
+//		let pinchLocation = pinchGestureRecognizer.location(in: view)
+//		let zoomScale = scrollView.zoomScale
+//
+//		let newPinchLocation = change(pinchLocation: pinchLocation)
+//
+//		scrollView.contentOffset = calculateOffset(
+//			zoomScale: zoomScale,
+//			contentSize: scrollView.contentSize,
+//			by: newPinchLocation
+//		)
+//
+//		zoomPresentAnimation.scaleToView(
+//			by: zoomScale,
+//			origin: view.convert(
+//				firstCellAfterZoom?.frame.origin ?? .zero,
+//				from: collectionView
+//			)
+//		)
+
+//		zoomPresentAnimation.update((zoomScale - 1) / (finalZoomScale - 1))
+//	}
+
+//	func scrollViewDidEndZooming(_ scrollView: UIScrollView,
+//								 with view: UIView?,
+//								 atScale scale: CGFloat) {
+//		zoomPresentAnimation.finish()
+//		if scale - 1 < 0.5 {
+//			zoomPresentAnimation.cancel()
+//		} else {
+//			zoomPresentAnimation.finish()
+//		}
+//	}
+//}

@@ -7,31 +7,19 @@
 
 import UIKit
 
-final class ZoomPresentAnimationController: UIPercentDrivenInteractiveTransition {
-
-	var initialFrame: CGRect = .zero
-	var center: CGPoint = .zero
-	var isHidden: Bool = true
+final class ZoomPresentAnimationController: NSObject {
 
 	// MARK: - Private properties
 
-	private let myDuration: TimeInterval = 1.0
+	private let duration: TimeInterval = 1.5
+	private let initialFrame: CGRect
+	private let anchorPoint: CGPoint
 
-	private var toView: UIView?
+	// MARK: - Init
 
-	func scaleToView(by scaleFactor: CGFloat, origin: CGPoint) {
-		toView?.frame.origin = origin
-
-		toView?.transform = CGAffineTransform(
-			scaleX: scaleFactor,
-			y: scaleFactor
-		)
-	}
-
-	override func update(_ percentComplete: CGFloat) {
-		if percentComplete > 0.3 {
-			
-		}
+	init(initialFrame: CGRect, anchorPoint: CGPoint) {
+		self.initialFrame = initialFrame
+		self.anchorPoint = anchorPoint
 	}
 }
 
@@ -41,13 +29,27 @@ extension ZoomPresentAnimationController: UIViewControllerAnimatedTransitioning 
 
 	func transitionDuration(
 		using transitionContext: UIViewControllerContextTransitioning?
-	) -> TimeInterval { myDuration }
+	) -> TimeInterval { duration }
 
 	func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-		guard let toView = transitionContext.view(forKey: .to) else { return }
+
+		guard let fromView = transitionContext.viewController(forKey: .from)?.view,
+			  let toView = transitionContext.view(forKey: .to) else { return }
 
 		toView.frame = initialFrame
+
+		toView.setAnchorPoint(anchorPoint)
+		fromView.setAnchorPoint(anchorPoint)
+
 		transitionContext.containerView.addSubview(toView)
-		self.toView = toView
+
+		UIView.animate(withDuration: transitionDuration(using: transitionContext)) {
+			fromView.transform = CGAffineTransform(scaleX: 5.0 / 3.0, y: 5.0 / 3.0)
+			toView.transform = CGAffineTransform(scaleX: 5.0 / 3.0, y: 5.0 / 3.0)
+			toView.frame.origin = .zero
+		} completion: { isSuccess in
+			let transitionWasCompleted = !transitionContext.transitionWasCancelled && isSuccess
+			transitionContext.completeTransition(transitionWasCompleted)
+		}
 	}
 }
