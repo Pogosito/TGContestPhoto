@@ -12,6 +12,8 @@
 		04685B502A6BC1AF002CA60D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04685B4F2A6BC1AF002CA60D /* Extensions.swift */; };
 		04685B522A6BC1E0002CA60D /* Draft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04685B512A6BC1E0002CA60D /* Draft.swift */; };
 		04685B542A6BC22F002CA60D /* ZoomPresentAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04685B532A6BC22F002CA60D /* ZoomPresentAnimationController.swift */; };
+		048A8BF12A769CBA000DD027 /* ZoomOutDismissAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048A8BF02A769CBA000DD027 /* ZoomOutDismissAnimationController.swift */; };
+		048A8BF62A76CCF8000DD027 /* ZoomTransitioningDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048A8BF52A76CCF8000DD027 /* ZoomTransitioningDelegate.swift */; };
 		04E005312A6BC0850003F86B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E005302A6BC0850003F86B /* AppDelegate.swift */; };
 		04E0053A2A6BC0880003F86B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04E005392A6BC0880003F86B /* Assets.xcassets */; };
 		04E0053D2A6BC0880003F86B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04E0053B2A6BC0880003F86B /* LaunchScreen.storyboard */; };
@@ -23,6 +25,8 @@
 		04685B4F2A6BC1AF002CA60D /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		04685B512A6BC1E0002CA60D /* Draft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Draft.swift; sourceTree = "<group>"; };
 		04685B532A6BC22F002CA60D /* ZoomPresentAnimationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomPresentAnimationController.swift; sourceTree = "<group>"; };
+		048A8BF02A769CBA000DD027 /* ZoomOutDismissAnimationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomOutDismissAnimationController.swift; sourceTree = "<group>"; };
+		048A8BF52A76CCF8000DD027 /* ZoomTransitioningDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomTransitioningDelegate.swift; sourceTree = "<group>"; };
 		04E0052D2A6BC0850003F86B /* TGContestPhoto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TGContestPhoto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04E005302A6BC0850003F86B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		04E005392A6BC0880003F86B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -54,8 +58,17 @@
 			isa = PBXGroup;
 			children = (
 				04685B532A6BC22F002CA60D /* ZoomPresentAnimationController.swift */,
+				048A8BF02A769CBA000DD027 /* ZoomOutDismissAnimationController.swift */,
 			);
 			name = TransitionAnimations;
+			sourceTree = "<group>";
+		};
+		048A8BF42A76CCC7000DD027 /* TransitioningDelegate */ = {
+			isa = PBXGroup;
+			children = (
+				048A8BF52A76CCF8000DD027 /* ZoomTransitioningDelegate.swift */,
+			);
+			name = TransitioningDelegate;
 			sourceTree = "<group>";
 		};
 		04E005242A6BC0850003F86B = {
@@ -80,6 +93,7 @@
 				04E005302A6BC0850003F86B /* AppDelegate.swift */,
 				04685B4F2A6BC1AF002CA60D /* Extensions.swift */,
 				04685B4B2A6BC16A002CA60D /* Grids */,
+				048A8BF42A76CCC7000DD027 /* TransitioningDelegate */,
 				04685B4E2A6BC19C002CA60D /* TransitionAnimations */,
 				04685B512A6BC1E0002CA60D /* Draft.swift */,
 				04E005392A6BC0880003F86B /* Assets.xcassets */,
@@ -163,8 +177,10 @@
 				04685B4D2A6BC17F002CA60D /* ThreeСolumnGridViewController.swift in Sources */,
 				04685B492A6BC145002CA60D /* FiveСolumnGridViewController.swift in Sources */,
 				04685B542A6BC22F002CA60D /* ZoomPresentAnimationController.swift in Sources */,
+				048A8BF62A76CCF8000DD027 /* ZoomTransitioningDelegate.swift in Sources */,
 				04E005312A6BC0850003F86B /* AppDelegate.swift in Sources */,
 				04685B502A6BC1AF002CA60D /* Extensions.swift in Sources */,
+				048A8BF12A769CBA000DD027 /* ZoomOutDismissAnimationController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

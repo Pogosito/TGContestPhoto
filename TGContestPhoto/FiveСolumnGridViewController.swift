@@ -14,10 +14,10 @@ final class FiveСolumnGridViewController: UIViewController {
 	private let cellId: String = "collectionCellId"
 
 	private var currentScrollViewYContentOffset: CGFloat = 0
-	private var finalZoomRect: CGRect = .zero
-	private var transitionAnchorPoint: CGPoint = .zero
+	private var previewRect: CGRect = .zero
+	private var transitionAnchorPointOfView: CGPoint = .zero
 	private var firstCellAfterZoom: UICollectionViewCell?
-	private var zoomInteractiveTransitioning: UIPercentDrivenInteractiveTransition?
+	private var zoomTransitionDelegate: ZoomTransitioningDelegate?
 
 	private lazy var viewFrame: CGRect = view.frame
 	private lazy var itemWidth: CGFloat = (viewFrame.width - (0.5 * 6)) / 5
@@ -45,7 +45,6 @@ final class FiveСolumnGridViewController: UIViewController {
 
 	private lazy var threeColumnGridViewController: ThreeСolumnGridViewController = {
 		let controller = ThreeСolumnGridViewController()
-		controller.transitioningDelegate = self
 		controller.modalPresentationStyle = .custom
 		return controller
 	}()
@@ -63,28 +62,6 @@ final class FiveСolumnGridViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupUI()
-	}
-}
-
-// MARK: - UIViewControllerTransitioningDelegate
-
-extension FiveСolumnGridViewController: UIViewControllerTransitioningDelegate {
-
-	func animationController(
-		forPresented presented: UIViewController,
-		presenting: UIViewController,
-		source: UIViewController
-	) -> UIViewControllerAnimatedTransitioning? {
-		ZoomPresentAnimationController(
-			initialFrame: finalZoomRect,
-			anchorPoint: transitionAnchorPoint
-		)
-	}
-
-	func interactionControllerForPresentation(
-		using animator: UIViewControllerAnimatedTransitioning
-	) -> UIViewControllerInteractiveTransitioning? {
-		zoomInteractiveTransitioning
 	}
 }
 
@@ -133,16 +110,18 @@ extension FiveСolumnGridViewController: UICollectionViewDataSource {
 private extension FiveСolumnGridViewController {
 
 	@objc func didPinch(_ sender: UIPinchGestureRecognizer) {
+
+		if sender.scale < 1.0 { return }
+
 		switch sender.state {
-		case .began: began(pinch: sender)
-		case .changed: zoomInteractiveTransitioning?.update((sender.scale - 1) / finalZoomScale)
-		case .ended:
-			zoomInteractiveTransitioning?.finish()
-			zoomInteractiveTransitioning = nil
-		case .possible: print("possible")
-		case .failed: print("failed")
-		case .cancelled: print("cancelled")
-		@unknown default: print("SOME")
+		case .began:
+			began(pinch: sender)
+		case .changed: zoomTransitionDelegate?.helper.update((sender.scale - 1) / finalZoomScale)
+		case .ended, .possible, .failed, .cancelled:
+			(sender.scale - 1) / finalZoomScale > 0.25
+			? zoomTransitionDelegate?.helper.finish()
+			: zoomTransitionDelegate?.helper.cancel()
+		@unknown default: return
 		}
 	}
 }
@@ -152,10 +131,8 @@ private extension FiveСolumnGridViewController {
 private extension FiveСolumnGridViewController {
 
 	func began(pinch: UIPinchGestureRecognizer) {
-		zoomInteractiveTransitioning = UIPercentDrivenInteractiveTransition()
 
 		let pinchLocation = change(pinchLocation: pinch.location(in: view))
-		transitionAnchorPoint = pinchLocation / CGPoint(x: viewFrame.size.width, y: viewFrame.size.height)
 
 		let offset = calculateOffset(
 			zoomScale: finalZoomScale,
@@ -183,10 +160,15 @@ private extension FiveСolumnGridViewController {
 		let lowerRightCornerOfLastCell = lastCellOriginAfterZoom + itemWidth
 		let sizeOfPreview = lowerRightCornerOfLastCell - firstCellOriginAfterZoom
 
-		finalZoomRect = CGRect(
+		previewRect = CGRect(
 			origin: firstCellOriginAfterZoom + CGPoint(x: 0, y: view.safeAreaInsets.top),
 			size: CGSize(width: sizeOfPreview.x, height: sizeOfPreview.y)
 		)
+
+		transitionAnchorPointOfView = pinchLocation / CGPoint(x: viewFrame.size.width, y: viewFrame.size.height)
+
+		zoomTransitionDelegate = ZoomTransitioningDelegate(previewRect: previewRect, pinchLocation: pinchLocation)
+		threeColumnGridViewController.transitioningDelegate = zoomTransitionDelegate
 
 		present(threeColumnGridViewController, animated: true)
 	}
