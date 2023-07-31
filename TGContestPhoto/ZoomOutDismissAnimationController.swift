@@ -19,7 +19,6 @@ extension ZoomOutDismissAnimationController: UIViewControllerAnimatedTransitioni
 
 		guard let fromView = transitionContext.view(forKey: .from),
 			  let toView = transitionContext.viewController(forKey: .to)?.view else {
-			print("STRANGE")
 			return
 		}
 
@@ -27,10 +26,8 @@ extension ZoomOutDismissAnimationController: UIViewControllerAnimatedTransitioni
 			fromView.transform = .identity
 			toView.transform = .identity
 			toView.frame.origin = .zero
-			print("ANIMATION START")
 		} completion: { isSuccess in
 			let transitionWasCompleted = !transitionContext.transitionWasCancelled && isSuccess
-			print("ANIMATION COMPLETE:, \(transitionWasCompleted)")
 			transitionContext.completeTransition(transitionWasCompleted)
 		}
 	}

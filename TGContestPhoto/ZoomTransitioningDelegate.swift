@@ -11,8 +11,7 @@ final class ZoomTransitioningDelegate: NSObject {
 
 	private let previewRect: CGRect
 	private let pinchLocation: CGPoint
-	let helper = UIPercentDrivenInteractiveTransition()
-	let helper2 = UIPercentDrivenInteractiveTransition()
+	weak var interactiveTransition: UIPercentDrivenInteractiveTransition?
 
 	init(
 		previewRect: CGRect,
@@ -41,15 +40,18 @@ extension ZoomTransitioningDelegate: UIViewControllerTransitioningDelegate {
 	func animationController(
 		forDismissed dismissed: UIViewController
 	) -> UIViewControllerAnimatedTransitioning? {
-		print("DISMISS DELEGATE")
 		return ZoomOutDismissAnimationController()
 	}
 
 	func interactionControllerForPresentation(
 		using animator: UIViewControllerAnimatedTransitioning
-	) -> UIViewControllerInteractiveTransitioning? { helper }
+	) -> UIViewControllerInteractiveTransitioning? {
+		return interactiveTransition
+	}
 
 	func interactionControllerForDismissal(
 		using animator: UIViewControllerAnimatedTransitioning
-	) -> UIViewControllerInteractiveTransitioning? { helper2 }
+	) -> UIViewControllerInteractiveTransitioning? {
+		return interactiveTransition
+	}
 }

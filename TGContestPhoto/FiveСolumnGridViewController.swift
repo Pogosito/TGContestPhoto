@@ -9,6 +9,8 @@ import UIKit
 
 final class FiveСolumnGridViewController: UIViewController {
 
+	private var interactionController: UIPercentDrivenInteractiveTransition?
+
 	// MARK: - Private properties
 
 	private let cellId: String = "collectionCellId"
@@ -41,12 +43,6 @@ final class FiveСolumnGridViewController: UIViewController {
 		collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
 		collectionView.addGestureRecognizer(pinchGesture)
 		return collectionView
-	}()
-
-	private lazy var threeColumnGridViewController: ThreeСolumnGridViewController = {
-		let controller = ThreeСolumnGridViewController()
-		controller.modalPresentationStyle = .custom
-		return controller
 	}()
 
 	// MARK: - Private types
@@ -114,13 +110,12 @@ private extension FiveСolumnGridViewController {
 		if sender.scale < 1.0 { return }
 
 		switch sender.state {
-		case .began:
-			began(pinch: sender)
-		case .changed: zoomTransitionDelegate?.helper.update((sender.scale - 1) / finalZoomScale)
+		case .began: began(pinch: sender)
+		case .changed: interactionController?.update((sender.scale - 1) / finalZoomScale)
 		case .ended, .possible, .failed, .cancelled:
 			(sender.scale - 1) / finalZoomScale > 0.25
-			? zoomTransitionDelegate?.helper.finish()
-			: zoomTransitionDelegate?.helper.cancel()
+			? interactionController?.finish()
+			: interactionController?.cancel()
 		@unknown default: return
 		}
 	}
@@ -167,8 +162,13 @@ private extension FiveСolumnGridViewController {
 
 		transitionAnchorPointOfView = pinchLocation / CGPoint(x: viewFrame.size.width, y: viewFrame.size.height)
 
-		zoomTransitionDelegate = ZoomTransitioningDelegate(previewRect: previewRect, pinchLocation: pinchLocation)
-		threeColumnGridViewController.transitioningDelegate = zoomTransitionDelegate
+		let threeColumnGridViewController = ThreeСolumnGridViewController(
+			previewRect: previewRect,
+			pinchLocation: pinchLocation
+		)
+
+		interactionController = UIPercentDrivenInteractiveTransition()
+		threeColumnGridViewController.zoomTransitioningDelegate.interactiveTransition = interactionController
 
 		present(threeColumnGridViewController, animated: true)
 	}

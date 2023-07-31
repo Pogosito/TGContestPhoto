@@ -9,7 +9,15 @@ import UIKit
 
 final class ThreeСolumnGridViewController: UIViewController {
 
-	var button: UIButton = UIButton(frame: .init(origin: .init(x: 30, y: 30), size: .init(width: 50, height: 50)))
+	lazy var zoomTransitioningDelegate = ZoomTransitioningDelegate(
+		previewRect: previewRect,
+		pinchLocation: pinchLocation
+	)
+
+	private let previewRect: CGRect
+	private let pinchLocation: CGPoint
+
+	private var interactionController: UIPercentDrivenInteractiveTransition?
 
 	private lazy var pinchGesture: UIPinchGestureRecognizer = UIPinchGestureRecognizer(
 		target: self,
@@ -18,13 +26,25 @@ final class ThreeСolumnGridViewController: UIViewController {
 
 	private lazy var zoomOutTransitionDelegate = transitioningDelegate as? ZoomTransitioningDelegate
 
+	init(
+		previewRect: CGRect,
+		pinchLocation: CGPoint
+	) {
+		self.previewRect = previewRect
+		self.pinchLocation = pinchLocation
+		super.init(nibName: nil, bundle: nil)
+		modalPresentationStyle = .custom
+		transitioningDelegate = zoomTransitioningDelegate
+	}
+
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .purple
 		view.alpha = 0.4
-		button.backgroundColor = .red
-		view.addSubview(button)
-		button.addTarget(self, action: #selector(tap), for: .touchUpInside)
 		view.addGestureRecognizer(pinchGesture)
 	}
 
@@ -34,18 +54,18 @@ final class ThreeСolumnGridViewController: UIViewController {
 
 	@objc func didPinch(_ sender: UIPinchGestureRecognizer) {
 
-		print((1 - sender.scale) / (3.0 / 5.0))
+		if sender.scale > 1.0 { return }
 
-		if sender.scale > 1.0 { print("1111"); return }
 		switch sender.state {
 		case .began:
-			print("DISMISS")
+			interactionController = UIPercentDrivenInteractiveTransition()
+			zoomOutTransitionDelegate?.interactiveTransition = interactionController
 			dismiss(animated: true)
-		case .changed: zoomOutTransitionDelegate?.helper2.update((1 - sender.scale) / (3.0 / 5.0))
+		case .changed: zoomOutTransitionDelegate?.interactiveTransition?.update((1 - sender.scale) / (3.0 / 5.0))
 		case .ended, .possible, .failed, .cancelled:
 			(1 - sender.scale) / (3.0 / 5.0) > 0.25
-			? zoomOutTransitionDelegate?.helper2.finish()
-			: zoomOutTransitionDelegate?.helper2.cancel()
+			? zoomOutTransitionDelegate?.interactiveTransition?.finish()
+			: zoomOutTransitionDelegate?.interactiveTransition?.cancel()
 		@unknown default: return
 		}
 	}
