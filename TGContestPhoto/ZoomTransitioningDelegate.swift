@@ -9,9 +9,12 @@ import UIKit
 
 final class ZoomTransitioningDelegate: NSObject {
 
+	weak var interactiveTransition: UIPercentDrivenInteractiveTransition?
+
+	// MARK: - Private properties
+
 	private let previewRect: CGRect
 	private let pinchLocation: CGPoint
-	weak var interactiveTransition: UIPercentDrivenInteractiveTransition?
 
 	init(
 		previewRect: CGRect,

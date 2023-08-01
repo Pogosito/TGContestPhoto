@@ -14,7 +14,7 @@ final class ViewController2: UIViewController {
 	lazy var slider = UISlider(frame: .init(origin: .init(x: 0, y: view.frame.height - 50),
 									   size: .init(width: view.frame.width, height: 40)))
 
-	let someView = UIView(frame: CGRect(origin: .init(x: 100, y: 100), size: .init(width: 50, height: 50)))
+	let someView = UIButton(frame: CGRect(origin: .init(x: 150, y: 500), size: .init(width: 50, height: 50)))
 	let someView2 = UIView(frame: CGRect(origin: .init(x: 100, y: 100), size: .init(width: 50, height: 50)))
 
 	var lastSliderValue: Float = 0
@@ -48,18 +48,27 @@ final class ViewController2: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .clear
-		view.window?.addSubview(someView)
+//		view.backgroundColor = .clear
+//		view.window?.addSubview(someView)
+//
+//		addScrollView()
+//		scrollView.addSubview(imageView)
+//
+//		slider.minimumValue = 1.0
+//		slider.maximumValue = 5.0
 
-		addScrollView()
-		scrollView.addSubview(imageView)
-
-		slider.minimumValue = 1.0
-		slider.maximumValue = 2.0
+		someView.setAnchorPoint(.init(x: CGFloat.random(in: 0...1), y: CGFloat.random(in: 0...1)))
 		someView.backgroundColor = .red
-
+		someView.addTarget(self, action: #selector(someFunction), for: .touchUpInside)
+		
 		view.addSubview(slider)
-		slider.addTarget(self, action: #selector(someFunction), for: .valueChanged)
+//		print("myCalc X:", someView.frame.origin.x - (someView.frame.width - someView.frame.width * someView.anchorPoint.x))
+//		print("myCalc Y:", someView.frame.origin.y - (someView.frame.height - someView.frame.height * someView.anchorPoint.y))
+		print("myCalc X:", (someView.frame.origin.x + (someView.anchorPoint.x * someView.frame.width)) - (someView.anchorPoint.x * someView.frame.height * 5))
+		print("myCalc Y:", (someView.frame.origin.y + (someView.anchorPoint.y * someView.frame.height)) - (someView.anchorPoint.y * someView.frame.height * 5))
+		print("-------------------------------------------------------")
+//		print(someView.frame)
+//		slider.addTarget(self, action: #selector(someFunction), for: .valueChanged)
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
@@ -70,9 +79,8 @@ final class ViewController2: UIViewController {
 	@objc func someFunction() {
 		let cgFloatScaleValue = CGFloat(slider.value)
 //		someView.setAnchorPoint(CGPoint(x: , y: <#T##CGFloat#>))
-		someView.transform = CGAffineTransformMakeScale(cgFloatScaleValue * 2, cgFloatScaleValue * 2)
-
-//
+		someView.transform = CGAffineTransformMakeScale(5, 5)
+		print(someView.frame)
 	}
 
 	func addScrollView() {
