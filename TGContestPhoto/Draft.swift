@@ -14,10 +14,14 @@ final class ViewController2: UIViewController {
 	lazy var slider = UISlider(frame: .init(origin: .init(x: 0, y: view.frame.height - 50),
 									   size: .init(width: view.frame.width, height: 40)))
 
-	let someView = UIButton(frame: CGRect(origin: .init(x: 150, y: 500), size: .init(width: 50, height: 50)))
-	let someView2 = UIView(frame: CGRect(origin: .init(x: 100, y: 100), size: .init(width: 50, height: 50)))
+	lazy var someView = UIButton(frame: view.frame)
+	let someView2 = UIView(frame: CGRect(origin: .init(x: 150, y: 500), size: .init(width: 50, height: 50)))
+	let someView3 = UIView(frame: CGRect(origin: .zero, size: .init(width: 50, height: 50)))
 
 	var lastSliderValue: Float = 0
+
+	var x: CGFloat = 0
+	var y: CGFloat = 0
 
 	private let imageView: UIImageView = {
 		let imageView = UIImageView(image: UIImage(named: "back"))
@@ -57,15 +61,18 @@ final class ViewController2: UIViewController {
 //		slider.minimumValue = 1.0
 //		slider.maximumValue = 5.0
 
-		someView.setAnchorPoint(.init(x: CGFloat.random(in: 0...1), y: CGFloat.random(in: 0...1)))
+		someView.setAnchorPoint(.init(x: 0.2, y: 0.2))
 		someView.backgroundColor = .red
 		someView.addTarget(self, action: #selector(someFunction), for: .touchUpInside)
 		
-		view.addSubview(slider)
+//		view.addSubview(slider)
 //		print("myCalc X:", someView.frame.origin.x - (someView.frame.width - someView.frame.width * someView.anchorPoint.x))
 //		print("myCalc Y:", someView.frame.origin.y - (someView.frame.height - someView.frame.height * someView.anchorPoint.y))
-		print("myCalc X:", (someView.frame.origin.x + (someView.anchorPoint.x * someView.frame.width)) - (someView.anchorPoint.x * someView.frame.height * 5))
-		print("myCalc Y:", (someView.frame.origin.y + (someView.anchorPoint.y * someView.frame.height)) - (someView.anchorPoint.y * someView.frame.height * 5))
+		x = someView.frame.origin.x - ((someView.frame.origin.x + (someView.anchorPoint.x * someView.frame.width)) - (someView.anchorPoint.x * someView.frame.width * 5))
+
+		y = someView.frame.origin.y - ((someView.frame.origin.y + (someView.anchorPoint.y * someView.frame.height)) - (someView.anchorPoint.y * someView.frame.height * 5))
+		print(x, y)
+		print(someView.frame)
 		print("-------------------------------------------------------")
 //		print(someView.frame)
 //		slider.addTarget(self, action: #selector(someFunction), for: .valueChanged)
@@ -77,15 +84,17 @@ final class ViewController2: UIViewController {
 	}
 
 	@objc func someFunction() {
-		let cgFloatScaleValue = CGFloat(slider.value)
-//		someView.setAnchorPoint(CGPoint(x: , y: <#T##CGFloat#>))
+		someView.addSubview(someView3)
+		someView3.frame.size = CGSize(width: someView3.frame.size.width / 5, height: someView3.frame.size.height / 5)
+		someView3.frame.origin = CGPoint(x: abs(x) / 5, y: abs(y) / 5)
 		someView.transform = CGAffineTransformMakeScale(5, 5)
+		someView3.backgroundColor = .blue
 		print(someView.frame)
 	}
 
 	func addScrollView() {
 		view.addSubview(scrollView)
-
+		
 		NSLayoutConstraint.activate([
 			scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),

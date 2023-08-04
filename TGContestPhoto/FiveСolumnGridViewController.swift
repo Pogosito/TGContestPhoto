@@ -16,7 +16,6 @@ final class FiveСolumnGridViewController: UIViewController {
 	private var currentScrollViewYContentOffset: CGFloat = 0
 	private var previewRect: CGRect = .zero
 	private var firstCellAfterZoom: UICollectionViewCell?
-	private var zoomTransitionDelegate: ZoomTransitioningDelegate?
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
 	private lazy var viewFrame: CGRect = view.frame
@@ -56,8 +55,6 @@ final class FiveСolumnGridViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupUI()
-		print(collectionView.frame)
-		print(view.frame)
 	}
 }
 
@@ -112,10 +109,9 @@ private extension FiveСolumnGridViewController {
 		switch sender.state {
 		case .began: began(pinch: sender)
 		case .changed:
-			print(collectionView.frame)
-			print(view.frame)
 			interactionController?.update((sender.scale - 1) / finalZoomScale)
 		case .ended, .possible, .failed, .cancelled:
+			print(view.frame)
 			(sender.scale - 1) / finalZoomScale > 0.25
 			? interactionController?.finish()
 			: interactionController?.cancel()
@@ -138,10 +134,30 @@ private extension FiveСolumnGridViewController {
 			pinchLocation: pinchLocation
 		)
 
+		view.setAnchorPoint(pinchLocation / CGPoint(x: viewFrame.width, y: viewFrame.height))
+
+		let x = view.frame.origin.x - ((view.frame.origin.x + (view.anchorPoint.x * view.frame.width)) - (view.anchorPoint.x * view.frame.width * finalZoomScale))
+
+		let y = view.frame.origin.y - ((view.frame.origin.y + (view.anchorPoint.y * view.frame.height)) - (view.anchorPoint.y * view.frame.height * finalZoomScale))
+
+		print(x, y)
+
+
+		let someView = UIView(frame: .init(x: abs(x / finalZoomScale),
+										   y: abs(y / finalZoomScale),
+										   width: 40,
+										   height: 40)
+		)
+
+		someView.backgroundColor = .blue
+		view.addSubview(someView)
+
 		let previewOrigin = CGPoint(
 			x: offset.x / finalZoomScale + 0.6,
 			y: offset.y / finalZoomScale
 		)
+
+
 
 		firstCellAfterZoom = cell(by: previewOrigin)
 
@@ -215,15 +231,8 @@ private extension FiveСolumnGridViewController {
 	func cell(by point: CGPoint) -> UICollectionViewCell? {
 		let visibleCells = collectionView.visibleCells
 
-//		for visibleCell in visibleCells {
-//			print((visibleCell.backgroundView as? UILabel)?.text)
-//		}
-//
-//		print("---------------------------")
-
 		for cell in visibleCells {
 			if CGRectContainsPoint(cell.frame, point) {
-//				print((cell.backgroundView as? UILabel)?.text)
 				return cell
 			}
 		}
