@@ -14,30 +14,29 @@ final class FiveСolumnGridViewController: UIViewController {
 	private let cellId: String = "collectionCellId"
 
 	private var currentScrollViewYContentOffset: CGFloat = 0
-	private var previewRect: CGRect = .zero
-	private var firstCellAfterZoom: UICollectionViewCell?
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
-	private lazy var viewFrame: CGRect = view.frame
-	private lazy var itemWidth: CGFloat = (viewFrame.width - (0.5 * 6)) / 5
+	private lazy var itemWidth: CGFloat = (view.frame.width - (4 * 1)) / 5
 	private lazy var finalZoomScale: Double = 5.0 / 3.0
-	private lazy var pinchGesture: UIPinchGestureRecognizer = UIPinchGestureRecognizer(
-		target: self,
-		action: #selector(didPinch(_:))
-	)
 
 	// MARK: UI
 
 	private lazy var collectionView: UICollectionView = {
 		let layout = UICollectionViewFlowLayout()
-		layout.minimumLineSpacing = 0.5
-		layout.minimumInteritemSpacing = 0.5
+		layout.minimumLineSpacing = 1
+		layout.minimumInteritemSpacing = 1
 		layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
 
-		let collectionView = UICollectionView(frame: viewFrame, collectionViewLayout: layout)
+		let collectionView = UICollectionView(frame: view.frame, collectionViewLayout: layout)
 		collectionView.dataSource = self
 		collectionView.delegate = self
 		collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
+
+		let pinchGesture: UIPinchGestureRecognizer = UIPinchGestureRecognizer(
+			target: self,
+			action: #selector(didPinch(_:))
+		)
+
 		collectionView.addGestureRecognizer(pinchGesture)
 		return collectionView
 	}()
@@ -111,7 +110,6 @@ private extension FiveСolumnGridViewController {
 		case .changed:
 			interactionController?.update((sender.scale - 1) / finalZoomScale)
 		case .ended, .possible, .failed, .cancelled:
-			print(view.frame)
 			(sender.scale - 1) / finalZoomScale > 0.25
 			? interactionController?.finish()
 			: interactionController?.cancel()
@@ -128,55 +126,20 @@ private extension FiveСolumnGridViewController {
 
 		let pinchLocation = change(pinchLocation: pinch.location(in: view))
 
-		let offset = calculateOffset(
-			zoomScale: finalZoomScale,
-			contentSize: viewFrame.size * finalZoomScale,
-			pinchLocation: pinchLocation
+		let x = view.frame.origin.x - ((view.frame.origin.x + pinchLocation.x) - (pinchLocation.x * finalZoomScale))
+		let y = view.frame.origin.y - ((view.frame.origin.y + pinchLocation.y) - (pinchLocation.y * finalZoomScale))
+
+		let firstPointOnScreenAfterZoom = CGPoint(
+			x: abs(x / finalZoomScale),
+			y: abs(y / finalZoomScale) - view.safeAreaInsets.top
 		)
 
-		view.setAnchorPoint(pinchLocation / CGPoint(x: viewFrame.width, y: viewFrame.height))
+		let numberOfFirstLineInCollectionAfterZoom = (firstPointOnScreenAfterZoom.y / itemWidth).rounded(.down)
+		let previewOriginY = (numberOfFirstLineInCollectionAfterZoom) * (itemWidth + 1)
 
-		let x = view.frame.origin.x - ((view.frame.origin.x + (view.anchorPoint.x * view.frame.width)) - (view.anchorPoint.x * view.frame.width * finalZoomScale))
-
-		let y = view.frame.origin.y - ((view.frame.origin.y + (view.anchorPoint.y * view.frame.height)) - (view.anchorPoint.y * view.frame.height * finalZoomScale))
-
-		print(x, y)
-
-
-		let someView = UIView(frame: .init(x: abs(x / finalZoomScale),
-										   y: abs(y / finalZoomScale),
-										   width: 40,
-										   height: 40)
-		)
-
-		someView.backgroundColor = .blue
-		view.addSubview(someView)
-
-		let previewOrigin = CGPoint(
-			x: offset.x / finalZoomScale + 0.6,
-			y: offset.y / finalZoomScale
-		)
-
-
-
-		firstCellAfterZoom = cell(by: previewOrigin)
-
-		guard let firstCellOriginAfterZoom = firstCellAfterZoom?.frame.origin,
-			  let lastCellOriginAfterZoom = cell(
-				by: CGPoint(
-					x: previewOrigin.x + (itemWidth * 3),
-					y: previewOrigin.y + itemWidth * 7
-				)
-			  )?.frame.origin else {
-			return
-		}
-
-		let lowerRightCornerOfLastCell = lastCellOriginAfterZoom + itemWidth
-		let sizeOfPreview = lowerRightCornerOfLastCell - firstCellOriginAfterZoom
-
-		previewRect = CGRect(
-			origin: firstCellOriginAfterZoom + CGPoint(x: 0, y: view.safeAreaInsets.top),
-			size: CGSize(width: sizeOfPreview.x, height: sizeOfPreview.y)
+		let previewRect: CGRect = CGRect(
+			origin: CGPoint(x: 83, y: previewOriginY + view.safeAreaInsets.top),
+			size: .init(width: 200, height: 200)
 		)
 
 		let threeColumnGridViewController = ThreeСolumnGridViewController(
@@ -195,24 +158,12 @@ private extension FiveСolumnGridViewController {
 
 		switch section(for: pinchLocation) {
 		case .first: newLocation.x = 0
-		case .second: newLocation.x = viewFrame.midX
-		case .third: newLocation.x = viewFrame.width
+		case .second: newLocation.x = view.frame.midX
+		case .third: newLocation.x = view.frame.width
 		case .none: return .zero
 		}
 
 		return newLocation
-	}
-
-	func calculateOffset(
-		zoomScale: CGFloat,
-		contentSize: CGSize,
-		pinchLocation: CGPoint
-	) -> CGPoint {
-
-		let offsetX = contentSize.width - (pinchLocation.x + (viewFrame.width - pinchLocation.x) * zoomScale)
-		let offsetY = contentSize.height - (pinchLocation.y + (viewFrame.height - pinchLocation.y) * zoomScale)
-
-		return CGPoint(x: offsetX, y: offsetY)
 	}
 
 	private func section(for pinchLocation: CGPoint) -> Section? {
@@ -230,8 +181,8 @@ private extension FiveСolumnGridViewController {
 
 	func cell(by point: CGPoint) -> UICollectionViewCell? {
 		let visibleCells = collectionView.visibleCells
-
 		for cell in visibleCells {
+
 			if CGRectContainsPoint(cell.frame, point) {
 				return cell
 			}
