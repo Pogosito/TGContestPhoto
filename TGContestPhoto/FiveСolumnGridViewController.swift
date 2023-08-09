@@ -13,7 +13,6 @@ final class FiveСolumnGridViewController: UIViewController {
 
 	private let cellId: String = "collectionCellId"
 
-	private var currentScrollViewYContentOffset: CGFloat = 0
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
 	private lazy var itemWidth: CGFloat = (view.frame.width - (4 * 1)) / 5
@@ -29,7 +28,6 @@ final class FiveСolumnGridViewController: UIViewController {
 
 		let collectionView = UICollectionView(frame: view.frame, collectionViewLayout: layout)
 		collectionView.dataSource = self
-		collectionView.delegate = self
 		collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
 
 		let pinchGesture: UIPinchGestureRecognizer = UIPinchGestureRecognizer(
@@ -54,15 +52,6 @@ final class FiveСolumnGridViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupUI()
-	}
-}
-
-// MARK: - UICollectionViewDelegate
-
-extension FiveСolumnGridViewController: UICollectionViewDelegate {
-
-	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-		currentScrollViewYContentOffset = scrollView.contentOffset.y
 	}
 }
 
@@ -107,8 +96,7 @@ private extension FiveСolumnGridViewController {
 
 		switch sender.state {
 		case .began: began(pinch: sender)
-		case .changed:
-			interactionController?.update((sender.scale - 1) / finalZoomScale)
+		case .changed: interactionController?.update((sender.scale - 1) / finalZoomScale)
 		case .ended, .possible, .failed, .cancelled:
 			(sender.scale - 1) / finalZoomScale > 0.25
 			? interactionController?.finish()
@@ -124,25 +112,33 @@ private extension FiveСolumnGridViewController {
 
 	func began(pinch: UIPinchGestureRecognizer) {
 
-		let pinchLocation = change(pinchLocation: pinch.location(in: view))
+		let pinchLocation: CGPoint = change(pinchLocation: pinch.location(in: view))
 
-		let x = view.frame.origin.x - ((view.frame.origin.x + pinchLocation.x) - (pinchLocation.x * finalZoomScale))
-		let y = view.frame.origin.y - ((view.frame.origin.y + pinchLocation.y) - (pinchLocation.y * finalZoomScale))
-
-		let firstPointOnScreenAfterZoom = CGPoint(
-			x: abs(x / finalZoomScale),
-			y: abs(y / finalZoomScale) - view.safeAreaInsets.top
+		let firstPointOnScreenAfterZoom: CGPoint = CGPoint(
+			x: pinchLocation.x - pinchLocation.x / finalZoomScale,
+			y: pinchLocation.y - pinchLocation.y / finalZoomScale
 		)
 
-		let numberOfFirstLineInCollectionAfterZoom = (firstPointOnScreenAfterZoom.y / itemWidth).rounded(.down)
-		let previewOriginY = (numberOfFirstLineInCollectionAfterZoom) * (itemWidth + 1)
+		let itemWidthWithInsets: CGFloat = itemWidth + 1
+		let collectionViewContentOffsetY: CGFloat = collectionView.contentOffset.y
+		let numberOfWholeScrolledCells: CGFloat = (collectionViewContentOffsetY / itemWidthWithInsets).rounded(.down)
+		let distanceToFirstLineFromTopScreen: CGFloat = itemWidth - (collectionViewContentOffsetY - numberOfWholeScrolledCells * itemWidthWithInsets)
+		let distanceFromFirstLineToPinchLocation: CGFloat = firstPointOnScreenAfterZoom.y - distanceToFirstLineFromTopScreen
+		let distanceToNearestTopLine: CGFloat = distanceFromFirstLineToPinchLocation - (distanceFromFirstLineToPinchLocation / itemWidthWithInsets).rounded(.down) * itemWidthWithInsets
+		let previewY: CGFloat = firstPointOnScreenAfterZoom.y - distanceToNearestTopLine + 1
 
 		let previewRect: CGRect = CGRect(
-			origin: CGPoint(x: 83, y: previewOriginY + view.safeAreaInsets.top),
-			size: .init(width: 200, height: 200)
+			origin: .init(
+				x: firstPointOnScreenAfterZoom.x,
+				y: previewY
+			),
+			size: .init(
+				width: itemWidthWithInsets * 3,
+				height: itemWidthWithInsets * 8
+			)
 		)
 
-		let threeColumnGridViewController = ThreeСolumnGridViewController(
+		let threeColumnGridViewController: ThreeСolumnGridViewController = ThreeСolumnGridViewController(
 			previewRect: previewRect,
 			pinchLocation: pinchLocation
 		)
@@ -154,7 +150,7 @@ private extension FiveСolumnGridViewController {
 	}
 
 	func change(pinchLocation: CGPoint) -> CGPoint {
-		var newLocation = CGPoint(x: 0, y: pinchLocation.y)
+		var newLocation: CGPoint = CGPoint(x: 0, y: pinchLocation.y)
 
 		switch section(for: pinchLocation) {
 		case .first: newLocation.x = 0
@@ -177,18 +173,6 @@ private extension FiveСolumnGridViewController {
 		}
 
 		return .none
-	}
-
-	func cell(by point: CGPoint) -> UICollectionViewCell? {
-		let visibleCells = collectionView.visibleCells
-		for cell in visibleCells {
-
-			if CGRectContainsPoint(cell.frame, point) {
-				return cell
-			}
-		}
-
-		return nil
 	}
 }
 
