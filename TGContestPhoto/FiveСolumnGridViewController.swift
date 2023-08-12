@@ -130,7 +130,7 @@ private extension FiveСolumnGridViewController {
 		let previewRect: CGRect = CGRect(
 			origin: .init(
 				x: firstPointOnScreenAfterZoom.x,
-				y: previewY
+				y: firstPointOnScreenAfterZoom.y
 			),
 			size: .init(
 				width: itemWidthWithInsets * 3,
@@ -140,7 +140,8 @@ private extension FiveСolumnGridViewController {
 
 		let threeColumnGridViewController: ThreeСolumnGridViewController = ThreeСolumnGridViewController(
 			previewRect: previewRect,
-			pinchLocation: pinchLocation
+			pinchLocation: pinchLocation,
+			topInset: itemWidth - distanceToNearestTopLine
 		)
 
 		interactionController = UIPercentDrivenInteractiveTransition()

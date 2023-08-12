@@ -8,25 +8,26 @@
 import UIKit
 
 final class ThreeСolumnGridViewController: UIViewController {
-	
+ 
 	lazy var zoomTransitioningDelegate = ZoomTransitioningDelegate(
 		previewRect: previewRect,
 		pinchLocation: pinchLocation
 	)
-	
+
 	// MARK: - Private properties
-	
+
 	private let cellId: String = "collectionCellId"
 	private let previewRect: CGRect
 	private let pinchLocation: CGPoint
-	
+	private let topInset: CGFloat
+
 	private var interactionController: UIPercentDrivenInteractiveTransition?
-	
+
 	private lazy var zoomOutTransitionDelegate = transitioningDelegate as? ZoomTransitioningDelegate
 	private lazy var itemWidth: CGFloat = (view.frame.width * (3 / 5) - 2) / 3
-	
+
 	// MARK: UI
-	
+
 	private lazy var collectionView: UICollectionView = {
 		let layout = UICollectionViewFlowLayout()
 		layout.minimumLineSpacing = 1
@@ -35,40 +36,43 @@ final class ThreeСolumnGridViewController: UIViewController {
 
 		let collectionView = UICollectionView(frame: CGRect(
 			origin: .zero,
-			size: CGSize(width: view.frame.width * (3 / 5), height: view.frame.height)
+			size: CGSize(width: view.frame.width * (3 / 5), height: view.frame.height * (3 / 5))
 		), collectionViewLayout: layout)
 
+//		collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		collectionView.dataSource = self
 		collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
-		
+
 		let pinchGesture: UIPinchGestureRecognizer = UIPinchGestureRecognizer(
 			target: self,
 			action: #selector(didPinch(_:))
 		)
-		
+
 		collectionView.addGestureRecognizer(pinchGesture)
 		return collectionView
 	}()
-	
+
 	// MARK: - Init
-	
+
 	init(
 		previewRect: CGRect,
-		pinchLocation: CGPoint
+		pinchLocation: CGPoint,
+		topInset: CGFloat
 	) {
 		self.previewRect = previewRect
 		self.pinchLocation = pinchLocation
+		self.topInset = topInset
 		super.init(nibName: nil, bundle: nil)
 		modalPresentationStyle = .custom
 		transitioningDelegate = zoomTransitioningDelegate
 	}
-	
+
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
-	
+
 	// MARK: - Lifecycle
-	
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .red
