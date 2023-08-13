@@ -20,11 +20,12 @@ final class ThreeСolumnGridViewController: UIViewController {
 	private let previewRect: CGRect
 	private let pinchLocation: CGPoint
 	private let topInset: CGFloat
+	private let bottomInset: CGFloat
 
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
 	private lazy var zoomOutTransitionDelegate = transitioningDelegate as? ZoomTransitioningDelegate
-	private lazy var itemWidth: CGFloat = (view.frame.width * (3 / 5) - 2) / 3
+	private lazy var itemWidth: CGFloat = (previewRect.width - 2) / 3.0
 
 	// MARK: UI
 
@@ -34,12 +35,19 @@ final class ThreeСolumnGridViewController: UIViewController {
 		layout.minimumInteritemSpacing = 1
 		layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
 
-		let collectionView = UICollectionView(frame: CGRect(
+		let frame: CGRect = CGRect(
 			origin: .zero,
-			size: CGSize(width: view.frame.width * (3 / 5), height: view.frame.height * (3 / 5))
-		), collectionViewLayout: layout)
+			size: CGSize(
+				width: previewRect.width,
+				height: previewRect.height
+			)
+		)
 
-//		collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		let collectionView = UICollectionView(
+			frame: frame,
+			collectionViewLayout: layout
+		)
+		collectionView.alwaysBounceVertical = true
 		collectionView.dataSource = self
 		collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
 
@@ -57,16 +65,19 @@ final class ThreeСolumnGridViewController: UIViewController {
 	init(
 		previewRect: CGRect,
 		pinchLocation: CGPoint,
-		topInset: CGFloat
+		topInset: CGFloat,
+		bottomInset: CGFloat
 	) {
 		self.previewRect = previewRect
 		self.pinchLocation = pinchLocation
 		self.topInset = topInset
+		self.bottomInset = bottomInset
 		super.init(nibName: nil, bundle: nil)
 		modalPresentationStyle = .custom
 		transitioningDelegate = zoomTransitioningDelegate
 	}
 
+	@available(*, unavailable)
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
@@ -75,8 +86,12 @@ final class ThreeСolumnGridViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .red
 		setupUI()
+	}
+
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		DispatchQueue.main.async { self.collectionView.contentInset.top = self.topInset }
 	}
 }
 
@@ -97,6 +112,7 @@ extension ThreeСolumnGridViewController: UICollectionViewDataSource {
 	) -> UICollectionViewCell {
 
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath)
+//		cell.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
 		cell.backgroundColor = .blue
 		let label = UILabel()
 		label.text = "\(indexPath.row)(\(indexPath.row / 3)|\(indexPath.row % 3))"

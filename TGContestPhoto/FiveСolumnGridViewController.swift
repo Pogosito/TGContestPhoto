@@ -15,7 +15,7 @@ final class FiveСolumnGridViewController: UIViewController {
 
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
-	private lazy var itemWidth: CGFloat = (view.frame.width - (4 * 1)) / 5
+	private lazy var itemWidth: CGFloat = (view.frame.width - 4) / 5
 	private lazy var finalZoomScale: Double = 5.0 / 3.0
 
 	// MARK: UI
@@ -126,22 +126,25 @@ private extension FiveСolumnGridViewController {
 		let distanceFromFirstLineToPinchLocation: CGFloat = firstPointOnScreenAfterZoom.y - distanceToFirstLineFromTopScreen
 		let distanceToNearestTopLine: CGFloat = distanceFromFirstLineToPinchLocation - (distanceFromFirstLineToPinchLocation / itemWidthWithInsets).rounded(.down) * itemWidthWithInsets
 		let previewY: CGFloat = firstPointOnScreenAfterZoom.y - distanceToNearestTopLine + 1
+		let previewHeight: CGFloat = view.frame.height * (3.0 / 5.0)
+		let roundedPreviewHeight = (previewHeight / itemWidthWithInsets).rounded(.up) * itemWidthWithInsets
 
 		let previewRect: CGRect = CGRect(
 			origin: .init(
 				x: firstPointOnScreenAfterZoom.x,
-				y: firstPointOnScreenAfterZoom.y
+				y: previewY
 			),
 			size: .init(
 				width: itemWidthWithInsets * 3,
-				height: itemWidthWithInsets * 8
+				height: roundedPreviewHeight
 			)
 		)
 
 		let threeColumnGridViewController: ThreeСolumnGridViewController = ThreeСolumnGridViewController(
 			previewRect: previewRect,
 			pinchLocation: pinchLocation,
-			topInset: itemWidth - distanceToNearestTopLine
+			topInset: distanceToNearestTopLine,
+			bottomInset: roundedPreviewHeight - previewHeight
 		)
 
 		interactionController = UIPercentDrivenInteractiveTransition()
