@@ -24,7 +24,6 @@ final class ThreeСolumnGridViewController: UIViewController {
 
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
-	private lazy var zoomOutTransitionDelegate = transitioningDelegate as? ZoomTransitioningDelegate
 	private lazy var itemWidth: CGFloat = (previewRect.width - 2) / 3.0
 
 	// MARK: UI
@@ -91,7 +90,10 @@ final class ThreeСolumnGridViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		DispatchQueue.main.async { self.collectionView.contentInset.top = self.topInset }
+		DispatchQueue.main.async {
+			self.collectionView.contentInset.top = self.topInset + 28.5
+			self.collectionView.contentInset.bottom = self.bottomInset
+		}
 	}
 }
 
@@ -112,7 +114,6 @@ extension ThreeСolumnGridViewController: UICollectionViewDataSource {
 	) -> UICollectionViewCell {
 
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath)
-//		cell.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
 		cell.backgroundColor = .blue
 		let label = UILabel()
 		label.text = "\(indexPath.row)(\(indexPath.row / 3)|\(indexPath.row % 3))"
@@ -135,18 +136,52 @@ private extension ThreeСolumnGridViewController {
 
 		if sender.scale > 1.0 { return }
 
+		let unclenchLocation: CGPoint = change(pinchLocation: sender.location(in: view))
+
 		switch sender.state {
 		case .began:
 			interactionController = UIPercentDrivenInteractiveTransition()
-			zoomOutTransitionDelegate?.interactiveTransition = interactionController
+			zoomTransitioningDelegate.interactiveTransition = interactionController
+			zoomTransitioningDelegate.unclenchLocation = unclenchLocation
 			dismiss(animated: true)
-		case .changed: zoomOutTransitionDelegate?.interactiveTransition?.update((1 - sender.scale) / (3.0 / 5.0))
+		case .changed: zoomTransitioningDelegate.interactiveTransition?.update((1 - sender.scale) / (3.0 / 5.0))
 		case .ended, .possible, .failed, .cancelled:
 			(1 - sender.scale) / (3.0 / 5.0) > 0.25
-			? zoomOutTransitionDelegate?.interactiveTransition?.finish()
-			: zoomOutTransitionDelegate?.interactiveTransition?.cancel()
+			? zoomTransitioningDelegate.interactiveTransition?.finish()
+			: zoomTransitioningDelegate.interactiveTransition?.cancel()
 		@unknown default: return
 		}
+	}
+}
+
+// MARK: Helper methods
+
+private extension ThreeСolumnGridViewController {
+
+	func change(pinchLocation: CGPoint) -> CGPoint {
+		var newLocation: CGPoint = CGPoint(x: 0, y: pinchLocation.y)
+
+		switch section(for: pinchLocation) {
+		case .first: newLocation.x = 0
+		case .second: newLocation.x = view.frame.midX
+		case .third: newLocation.x = view.frame.width
+		case .none: return .zero
+		}
+
+		return newLocation
+	}
+
+	func section(for pinchLocation: CGPoint) -> Section? {
+
+		if pinchLocation.x > itemWidth && pinchLocation.x < itemWidth * 2 {
+			return .second
+		} else if pinchLocation.x < itemWidth {
+			return .first
+		} else if pinchLocation.x > itemWidth * 2 {
+			return .third
+		}
+
+		return .none
 	}
 }
 

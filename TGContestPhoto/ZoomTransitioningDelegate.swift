@@ -10,6 +10,7 @@ import UIKit
 final class ZoomTransitioningDelegate: NSObject {
 
 	weak var interactiveTransition: UIPercentDrivenInteractiveTransition?
+	var unclenchLocation: CGPoint = .zero
 
 	// MARK: - Private properties
 
@@ -43,7 +44,9 @@ extension ZoomTransitioningDelegate: UIViewControllerTransitioningDelegate {
 	func animationController(
 		forDismissed dismissed: UIViewController
 	) -> UIViewControllerAnimatedTransitioning? {
-		return ZoomOutDismissAnimationController()
+		return ZoomOutDismissAnimationController(
+			unclenchLocation: unclenchLocation
+		)
 	}
 
 	func interactionControllerForPresentation(

@@ -39,14 +39,6 @@ final class FiveСolumnGridViewController: UIViewController {
 		return collectionView
 	}()
 
-	// MARK: - Private types
-
-	private enum Section {
-		case first
-		case second
-		case third
-	}
-
 	// MARK: - Lifecycle
 
 	override func viewDidLoad() {
@@ -126,7 +118,7 @@ private extension FiveСolumnGridViewController {
 		let distanceFromFirstLineToPinchLocation: CGFloat = firstPointOnScreenAfterZoom.y - distanceToFirstLineFromTopScreen
 		let distanceToNearestTopLine: CGFloat = distanceFromFirstLineToPinchLocation - (distanceFromFirstLineToPinchLocation / itemWidthWithInsets).rounded(.down) * itemWidthWithInsets
 		let previewY: CGFloat = firstPointOnScreenAfterZoom.y - distanceToNearestTopLine + 1
-		let previewHeight: CGFloat = view.frame.height * (3.0 / 5.0)
+		let previewHeight: CGFloat = view.frame.height * (3.0 / 5.0) + distanceToNearestTopLine
 		let roundedPreviewHeight = (previewHeight / itemWidthWithInsets).rounded(.up) * itemWidthWithInsets
 
 		let previewRect: CGRect = CGRect(
@@ -166,7 +158,7 @@ private extension FiveСolumnGridViewController {
 		return newLocation
 	}
 
-	private func section(for pinchLocation: CGPoint) -> Section? {
+	func section(for pinchLocation: CGPoint) -> Section? {
 
 		if pinchLocation.x > itemWidth && pinchLocation.x < itemWidth * 4 {
 			return .second

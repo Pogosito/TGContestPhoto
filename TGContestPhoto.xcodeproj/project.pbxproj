@@ -17,6 +17,7 @@
 		04E005312A6BC0850003F86B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E005302A6BC0850003F86B /* AppDelegate.swift */; };
 		04E0053A2A6BC0880003F86B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04E005392A6BC0880003F86B /* Assets.xcassets */; };
 		04E0053D2A6BC0880003F86B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04E0053B2A6BC0880003F86B /* LaunchScreen.storyboard */; };
+		04F1223B2A9124CE006E913E /* GridSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F1223A2A9124CE006E913E /* GridSection.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		04E005392A6BC0880003F86B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		04E0053C2A6BC0880003F86B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		04E0053E2A6BC0880003F86B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		04F1223A2A9124CE006E913E /* GridSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridSection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +94,7 @@
 			children = (
 				04E005302A6BC0850003F86B /* AppDelegate.swift */,
 				04685B4F2A6BC1AF002CA60D /* Extensions.swift */,
+				04F1223A2A9124CE006E913E /* GridSection.swift */,
 				04685B4B2A6BC16A002CA60D /* Grids */,
 				048A8BF42A76CCC7000DD027 /* TransitioningDelegate */,
 				04685B4E2A6BC19C002CA60D /* TransitionAnimations */,
@@ -181,6 +184,7 @@
 				04E005312A6BC0850003F86B /* AppDelegate.swift in Sources */,
 				04685B502A6BC1AF002CA60D /* Extensions.swift in Sources */,
 				048A8BF12A769CBA000DD027 /* ZoomOutDismissAnimationController.swift in Sources */,
+				04F1223B2A9124CE006E913E /* GridSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,7 +7,14 @@
 
 import UIKit
 
-final class ZoomOutDismissAnimationController: NSObject {}
+final class ZoomOutDismissAnimationController: NSObject {
+
+	private let unclenchLocation: CGPoint
+
+	init(unclenchLocation: CGPoint) {
+		self.unclenchLocation = unclenchLocation
+	}
+}
 
 extension ZoomOutDismissAnimationController: UIViewControllerAnimatedTransitioning {
 
@@ -22,10 +29,21 @@ extension ZoomOutDismissAnimationController: UIViewControllerAnimatedTransitioni
 			return
 		}
 
+
+		toView.transform = .identity
+
+		fromView.setAnchorPoint(unclenchLocation / CGPoint(x: fromView.frame.width, y: UIScreen.main.bounds.height))
+		toView.setAnchorPoint(unclenchLocation / CGPoint(x: toView.frame.width, y: UIScreen.main.bounds.height))
+
+		toView.transform = CGAffineTransform(scaleX: 5.0 / 3.0, y: 5.0 / 3.0)
+
+		print("2 FROM ANCHOR POINT:", fromView.anchorPoint)
+		print("2 TO ANCHOR POINT:", toView.anchorPoint)
+		print("-----------------")
+
 		UIView.animate(withDuration: transitionDuration(using: transitionContext)) {
-			fromView.transform = .identity
-			toView.transform = .identity
-			toView.frame.origin = .zero
+			fromView.transform = fromView.transform.scaledBy(x: 3.0 / 5.0, y: 3.0 / 5.0)
+			toView.transform = toView.transform.scaledBy(x: 3.0 / 5.0, y: 3.0 / 5.0)
 		} completion: { isSuccess in
 			let transitionWasCompleted = !transitionContext.transitionWasCancelled && isSuccess
 			transitionContext.completeTransition(transitionWasCompleted)
