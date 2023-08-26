@@ -43,8 +43,6 @@ extension ZoomPresentAnimationController: UIViewControllerAnimatedTransitioning 
 		fromView.setAnchorPoint(pinchLocation / CGPoint(x: fromView.frame.size.width, y: fromView.frame.size.height))
 		toView.setAnchorPoint(fromView.convert(pinchLocation, to: toView) / CGPoint(x: previewRect.width, y: previewRect.height))
 
-		print("FROM ANCHOR POINT:", fromView.anchorPoint)
-		print("TO ANCHOR POINT:", toView.anchorPoint)
 		transitionContext.containerView.addSubview(toView)
 
 		UIView.animate(withDuration: transitionDuration(using: transitionContext)) {
