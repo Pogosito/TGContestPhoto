@@ -84,10 +84,10 @@ private extension FiveСolumnGridViewController {
 
 	@objc func didPinch(_ sender: UIPinchGestureRecognizer) {
 
-		if sender.scale < 1.0 { return }
-
 		switch sender.state {
-		case .began: began(pinch: sender)
+		case .began:
+			if sender.scale < 1.0 { return }
+			began(pinch: sender)
 		case .changed: interactionController?.update((sender.scale - 1) / finalZoomScale)
 		case .ended, .possible, .failed, .cancelled:
 			(sender.scale - 1) / finalZoomScale > 0.25

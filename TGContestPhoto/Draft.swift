@@ -48,9 +48,15 @@ final class ViewController2: UIViewController {
 //
 		greenView.setAnchorPoint(CGPoint(x: 0.3, y: 0.3))
 
+		let anchorPointXOfGreenViewInParenCoordSpace = greenView.frame.origin.x + (greenView.anchorPoint.x * greenView.frame.width)
+		let anchorPointXOfGreenViewInBrownView = anchorPointXOfGreenViewInParenCoordSpace - brownView.frame.origin.x
+
+		let anchorPointYOfGreenViewInParenCoordSpace = greenView.frame.origin.y + (greenView.anchorPoint.y * greenView.frame.height)
+		let anchorPointYOfGreenViewInBrownView = anchorPointYOfGreenViewInParenCoordSpace - brownView.frame.origin.y
+
 		let brownAnchorPoint = CGPoint(
-			x: (greenView.anchorPoint.x * greenView.frame.width + 20) / brownView.frame.width,
-			y: (greenView.anchorPoint.y * greenView.frame.height + 20) / brownView.frame.height
+			x: anchorPointXOfGreenViewInBrownView / brownView.frame.width,
+			y: anchorPointYOfGreenViewInBrownView / brownView.frame.height
 		)
 
 		brownView.setAnchorPoint(brownAnchorPoint)

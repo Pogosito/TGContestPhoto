@@ -10,8 +10,15 @@ import UIKit
 final class ZoomOutDismissAnimationController: NSObject {
 
 	private let unclenchLocation: CGPoint
+	private let originYFromView: CGFloat
 
-	init(unclenchLocation: CGPoint) { self.unclenchLocation = unclenchLocation }
+	init(
+		originYFromView: CGFloat,
+		unclenchLocation: CGPoint
+	) {
+		self.originYFromView = originYFromView
+		self.unclenchLocation = unclenchLocation
+	}
 }
 
 extension ZoomOutDismissAnimationController: UIViewControllerAnimatedTransitioning {
@@ -27,22 +34,24 @@ extension ZoomOutDismissAnimationController: UIViewControllerAnimatedTransitioni
 			return
 		}
 
-		toView.transform = .identity
+		toView.frame.origin.x = 0
 
-		fromView.setAnchorPoint(unclenchLocation / CGPoint(x: fromView.frame.width, y: fromView.frame.height))
+		fromView.setAnchorPoint(
+			(fromView.frame.origin.absPoint() + unclenchLocation) / CGPoint(x: fromView.frame.width, y: fromView.frame.height)
+		)
 
 		let toViewAnchorPoint = CGPoint(
-			x: (unclenchLocation.x + fromView.frame.origin.x - toView.frame.origin.x) / toView.frame.width,
-			y: (unclenchLocation.y + fromView.frame.origin.y - toView.frame.origin.y) / toView.frame.height
+			x: 0,
+			y: ((abs(toView.frame.origin.y) + unclenchLocation.y) / toView.frame.height)
 		)
 
 		toView.setAnchorPoint(toViewAnchorPoint)
 
-		toView.transform = CGAffineTransform(scaleX: 5.0 / 3.0, y: 5.0 / 3.0)
-
 		UIView.animate(withDuration: transitionDuration(using: transitionContext)) {
 			fromView.transform = .identity
 			toView.transform = .identity
+			toView.frame.origin.y = 0
+			fromView.frame.origin.y = self.originYFromView
 		} completion: { isSuccess in
 			let transitionWasCompleted = !transitionContext.transitionWasCancelled && isSuccess
 			transitionContext.completeTransition(transitionWasCompleted)

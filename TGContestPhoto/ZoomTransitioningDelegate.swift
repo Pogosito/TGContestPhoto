@@ -44,7 +44,8 @@ extension ZoomTransitioningDelegate: UIViewControllerTransitioningDelegate {
 	func animationController(
 		forDismissed dismissed: UIViewController
 	) -> UIViewControllerAnimatedTransitioning? {
-		return ZoomOutDismissAnimationController(
+		ZoomOutDismissAnimationController(
+			originYFromView: previewRect.origin.y,
 			unclenchLocation: unclenchLocation
 		)
 	}
@@ -52,12 +53,12 @@ extension ZoomTransitioningDelegate: UIViewControllerTransitioningDelegate {
 	func interactionControllerForPresentation(
 		using animator: UIViewControllerAnimatedTransitioning
 	) -> UIViewControllerInteractiveTransitioning? {
-		return interactiveTransition
+		interactiveTransition
 	}
 
 	func interactionControllerForDismissal(
 		using animator: UIViewControllerAnimatedTransitioning
 	) -> UIViewControllerInteractiveTransitioning? {
-		return interactiveTransition
+		interactiveTransition
 	}
 }

@@ -30,6 +30,10 @@ extension CGPoint {
 	static func +(lhs: CGPoint, rhs: CGPoint) -> CGPoint {
 		CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
 	}
+
+	func absPoint() -> CGPoint {
+		CGPoint(x: abs(x), y: abs(y))
+	}
 }
 
 // MARK: - CGSize

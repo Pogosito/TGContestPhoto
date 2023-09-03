@@ -134,12 +134,11 @@ private extension ThreeСolumnGridViewController {
 
 	@objc func didPinch(_ sender: UIPinchGestureRecognizer) {
 
-		if sender.scale > 1.0 { return }
-
 		let unclenchLocation: CGPoint = change(pinchLocation: sender.location(in: view))
 
 		switch sender.state {
 		case .began:
+			if sender.scale > 1.0 { return }
 			interactionController = UIPercentDrivenInteractiveTransition()
 			zoomTransitioningDelegate.interactiveTransition = interactionController
 			zoomTransitioningDelegate.unclenchLocation = unclenchLocation
