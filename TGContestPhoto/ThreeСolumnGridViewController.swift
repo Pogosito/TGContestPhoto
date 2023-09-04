@@ -21,6 +21,7 @@ final class ThreeСolumnGridViewController: UIViewController {
 	private let pinchLocation: CGPoint
 	private let topInset: CGFloat
 	private let bottomInset: CGFloat
+	private var previousScreenOriginX: CGFloat = 0
 
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
@@ -142,6 +143,7 @@ private extension ThreeСolumnGridViewController {
 			interactionController = UIPercentDrivenInteractiveTransition()
 			zoomTransitioningDelegate.interactiveTransition = interactionController
 			zoomTransitioningDelegate.unclenchLocation = unclenchLocation
+			zoomTransitioningDelegate.xPositionOfFiveColumnController = previousScreenOriginX
 			dismiss(animated: true)
 		case .changed: zoomTransitioningDelegate.interactiveTransition?.update((1 - sender.scale) / (3.0 / 5.0))
 		case .ended, .possible, .failed, .cancelled:
@@ -161,9 +163,15 @@ private extension ThreeСolumnGridViewController {
 		var newLocation: CGPoint = CGPoint(x: 0, y: pinchLocation.y)
 
 		switch section(for: pinchLocation) {
-		case .first: newLocation.x = 0
-		case .second: newLocation.x = view.frame.midX
-		case .third: newLocation.x = view.frame.width
+		case .first:
+			previousScreenOriginX = 0
+			newLocation.x = 0
+		case .second:
+			previousScreenOriginX = itemWidth * (5.0 / 3.0) + 1
+			newLocation.x = view.frame.midX
+		case .third:
+			previousScreenOriginX = 2 * (itemWidth * (5.0 / 3.0) + 1)
+			newLocation.x = view.frame.width
 		case .none: return .zero
 		}
 

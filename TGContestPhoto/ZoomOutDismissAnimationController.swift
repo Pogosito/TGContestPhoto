@@ -11,13 +11,16 @@ final class ZoomOutDismissAnimationController: NSObject {
 
 	private let unclenchLocation: CGPoint
 	private let originYFromView: CGFloat
+	private let toViewOriginX: CGFloat
 
 	init(
 		originYFromView: CGFloat,
-		unclenchLocation: CGPoint
+		unclenchLocation: CGPoint,
+		toViewOriginX: CGFloat
 	) {
 		self.originYFromView = originYFromView
 		self.unclenchLocation = unclenchLocation
+		self.toViewOriginX = toViewOriginX
 	}
 }
 
@@ -34,14 +37,14 @@ extension ZoomOutDismissAnimationController: UIViewControllerAnimatedTransitioni
 			return
 		}
 
-		toView.frame.origin.x = 0
+		toView.frame.origin.x = -toViewOriginX
 
 		fromView.setAnchorPoint(
 			(fromView.frame.origin.absPoint() + unclenchLocation) / CGPoint(x: fromView.frame.width, y: fromView.frame.height)
 		)
 
 		let toViewAnchorPoint = CGPoint(
-			x: 0,
+			x: ((abs(toView.frame.origin.x) + unclenchLocation.x) / toView.frame.width),
 			y: ((abs(toView.frame.origin.y) + unclenchLocation.y) / toView.frame.height)
 		)
 

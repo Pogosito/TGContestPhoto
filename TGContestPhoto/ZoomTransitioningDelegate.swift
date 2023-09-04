@@ -11,6 +11,7 @@ final class ZoomTransitioningDelegate: NSObject {
 
 	weak var interactiveTransition: UIPercentDrivenInteractiveTransition?
 	var unclenchLocation: CGPoint = .zero
+	var xPositionOfFiveColumnController: CGFloat = 0
 
 	// MARK: - Private properties
 
@@ -46,7 +47,8 @@ extension ZoomTransitioningDelegate: UIViewControllerTransitioningDelegate {
 	) -> UIViewControllerAnimatedTransitioning? {
 		ZoomOutDismissAnimationController(
 			originYFromView: previewRect.origin.y,
-			unclenchLocation: unclenchLocation
+			unclenchLocation: unclenchLocation,
+			toViewOriginX: xPositionOfFiveColumnController
 		)
 	}
 
