@@ -121,13 +121,15 @@ private extension FiveСolumnGridViewController {
 		let previewHeight: CGFloat = view.frame.height * (3.0 / 5.0) + distanceToNearestTopLine
 		let roundedPreviewHeight = (previewHeight / itemWidthWithInsets).rounded(.up) * itemWidthWithInsets
 
+		let isFirstRow = isFirstRow(pinchLocation: pinchLocation)
+
 		let previewRect: CGRect = CGRect(
 			origin: .init(
 				x: firstPointOnScreenAfterZoom.x,
 				y: previewY
 			),
 			size: .init(
-				width: itemWidthWithInsets * 3,
+				width: 3 * itemWidth + 2,
 				height: roundedPreviewHeight
 			)
 		)
@@ -135,8 +137,9 @@ private extension FiveСolumnGridViewController {
 		let threeColumnGridViewController: ThreeСolumnGridViewController = ThreeСolumnGridViewController(
 			previewRect: previewRect,
 			pinchLocation: pinchLocation,
-			topInset: distanceToNearestTopLine,
-			bottomInset: roundedPreviewHeight - previewHeight
+			topInset: isFirstRow ? 28.5 : distanceToNearestTopLine,
+			bottomInset: roundedPreviewHeight - previewHeight,
+			presentingVelocity: pinch.velocity
 		)
 
 		interactionController = UIPercentDrivenInteractiveTransition()
@@ -169,6 +172,12 @@ private extension FiveСolumnGridViewController {
 		}
 
 		return .none
+	}
+
+	func isFirstRow(pinchLocation: CGPoint) -> Bool {
+		if collectionView.contentOffset.y > view.safeAreaInsets.top + itemWidth { return false }
+		let visibleHightOfFirstRow = itemWidth - collectionView.contentOffset.y
+		return pinchLocation.y < visibleHightOfFirstRow
 	}
 }
 

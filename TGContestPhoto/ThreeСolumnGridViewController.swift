@@ -7,6 +7,13 @@
 
 import UIKit
 
+// Какая картинка первая после зума ?
+
+/*
+ зум в первую секцию:
+ 0/2/1
+*/
+
 final class ThreeСolumnGridViewController: UIViewController {
  
 	lazy var zoomTransitioningDelegate = ZoomTransitioningDelegate(
@@ -21,11 +28,13 @@ final class ThreeСolumnGridViewController: UIViewController {
 	private let pinchLocation: CGPoint
 	private let topInset: CGFloat
 	private let bottomInset: CGFloat
-	private var previousScreenOriginX: CGFloat = 0
 
+	private var previousScreenOriginX: CGFloat = 0
+	private var presentingVelocity: CGFloat = 0
 	private var interactionController: UIPercentDrivenInteractiveTransition?
 
 	private lazy var itemWidth: CGFloat = (previewRect.width - 2) / 3.0
+	//	(previewRect.width - 2) / 3.0
 
 	// MARK: UI
 
@@ -47,6 +56,11 @@ final class ThreeСolumnGridViewController: UIViewController {
 			frame: frame,
 			collectionViewLayout: layout
 		)
+
+		// HACK, i don't know why initial value of contentOffset cant different from zero
+		// if you disable isScrollEnabled contentOffset be zero 100%
+		// i enable isScrollEnabled in viewDidAppear
+		collectionView.isScrollEnabled = false
 		collectionView.alwaysBounceVertical = true
 		collectionView.dataSource = self
 		collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
@@ -66,12 +80,14 @@ final class ThreeСolumnGridViewController: UIViewController {
 		previewRect: CGRect,
 		pinchLocation: CGPoint,
 		topInset: CGFloat,
-		bottomInset: CGFloat
+		bottomInset: CGFloat,
+		presentingVelocity: CGFloat
 	) {
 		self.previewRect = previewRect
 		self.pinchLocation = pinchLocation
 		self.topInset = topInset
 		self.bottomInset = bottomInset
+		self.presentingVelocity = presentingVelocity
 		super.init(nibName: nil, bundle: nil)
 		modalPresentationStyle = .custom
 		transitioningDelegate = zoomTransitioningDelegate
@@ -91,10 +107,21 @@ final class ThreeСolumnGridViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+
+		var alphaAnimationDuration: CGFloat = 0.5
+		if presentingVelocity > 0.5 { alphaAnimationDuration = 0 }
+
+		UIView.animate(withDuration: alphaAnimationDuration) { self.view.alpha = 1 }
+
 		DispatchQueue.main.async {
 			self.collectionView.contentInset.top = self.topInset + 28.5
 			self.collectionView.contentInset.bottom = self.bottomInset
+			self.collectionView.isScrollEnabled = true
 		}
+	}
+
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
 	}
 }
 
@@ -197,6 +224,7 @@ private extension ThreeСolumnGridViewController {
 private extension ThreeСolumnGridViewController {
 
 	func setupUI() {
+		view.alpha = 0
 		view.addSubview(collectionView)
 	}
 }

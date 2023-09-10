@@ -27,6 +27,18 @@ final class ViewController2: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+
+		for i in 0...150 {
+			let label = UILabel(frame: .init(origin: .zero, size: .init(width: 300, height: 300)))
+			label.font = UIFont.systemFont(ofSize: 40)
+			label.text = "\(i)"
+			label.backgroundColor = (i % 2 == 0) ? .blue : .green
+			label.textAlignment = .center
+			UIImageWriteToSavedPhotosAlbum(label.asImage(), nil, nil , nil)
+		}
+
+		print("DONE")
+
 		view.backgroundColor = .gray
 
 		brownView.backgroundColor = .brown
@@ -81,5 +93,17 @@ final class ViewController2: UIViewController {
 		super.didReceiveMemoryWarning()
 		someButton.transform = someButton.transform.scaledBy(x: 1.0 / 2.0, y: 1.0 / 2.0)
 		print(someButton.frame)
+	}
+}
+
+extension UIView {
+
+	// Using a function since `var image` might conflict with an existing variable
+	// (like on `UIImageView`)
+	func asImage() -> UIImage {
+		let renderer = UIGraphicsImageRenderer(bounds: bounds)
+		return renderer.image { rendererContext in
+			layer.render(in: rendererContext.cgContext)
+		}
 	}
 }
